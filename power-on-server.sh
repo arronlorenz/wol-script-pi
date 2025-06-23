@@ -2,11 +2,30 @@
 set -euo pipefail
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
+require_commands() {
+    for cmd in "$@"; do
+        if ! command -v "$cmd" >/dev/null; then
+            echo "$cmd utility not found" >&2
+            exit 1
+        fi
+    done
+}
+
+verify_arrays() {
+    if [[ ${#HOSTS[@]} -ne ${#MACS[@]} ]]; then
+        echo "HOSTS and MACS arrays must be the same length" >&2
+        exit 1
+    fi
+}
+
 # Runs hourly via cron: crontab -e
 # @hourly /usr/bin/bash /home/pi/power-on-server.sh >>/home/pi/power-on-server.log 2>&1
 
 HOSTS=(192.168.10.53 192.168.10.51 192.168.10.50 192.168.0.76)
 MACS=(48:21:0b:5a:45:49 88:ae:dd:04:b6:64 88:ae:dd:07:f3:15 dc:a6:32:7d:55:29)
+
+require_commands wakeonlan etherwake
+verify_arrays
 PING='/bin/ping -q -c1 -W1'     # 1-second timeout
 
 is_up() { $PING "$1" &>/dev/null; }
@@ -14,8 +33,8 @@ is_up() { $PING "$1" &>/dev/null; }
 wake_up() {
     local mac=$1 host=$2
     for _ in {1..5}; do
-        /usr/bin/wakeonlan "$mac"
-        /usr/sbin/etherwake  "$mac"
+        wakeonlan "$mac"
+        etherwake "$mac"
         sleep 10
         is_up "$host" && return 0
     done
