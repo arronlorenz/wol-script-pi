@@ -2,8 +2,7 @@
 # power-on-cluster.sh – keep Proxmox nodes awake from a Pi Zero 2 W
 #   • Runs safely from systemd-timer *or* cron
 #   • Uses flock to prevent concurrent runs
-#   • Reads host ↔︎ MAC mapping from /etc/power-on-cluster.conf to avoid
-#     hard-coding values in the script
+#   • Uses built-in host ↔︎ MAC mappings
 #   • Logs to journald via ‘logger’ for easy filtering
 #   • Reboots the Pi only when *all* targets remain unreachable after N tries
 #   • Shell-checked and set-euxo pipefail for robustness
@@ -31,16 +30,18 @@ verify_arrays() {
 }
 
 ###
-# CONFIG  (one host per line:  ip|mac )
-# Example:
-#   192.168.10.53|48:21:0b:5a:45:49
-#   192.168.10.51|88:ae:dd:04:b6:64
-# Store this in /etc/power-on-cluster.conf (chmod 644)
+# HOST ↔ MAC mappings
+# Define the IP and MAC pairs directly in the script.
+# Example values are shown below – adjust for your environment.
 ###
-CONF_FILE=/etc/power-on-cluster.conf
-
-mapfile -t HOSTS < <(awk -F'|' '{print $1}' "$CONF_FILE")
-mapfile -t MACS  < <(awk -F'|' '{print $2}' "$CONF_FILE")
+HOSTS=(
+    192.168.10.53
+    192.168.10.51
+)
+MACS=(
+    48:21:0b:5a:45:49
+    88:ae:dd:04:b6:64
+)
 verify_arrays
 require_commands wakeonlan etherwake flock logger systemctl
 
