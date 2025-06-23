@@ -5,7 +5,8 @@ This repository contains a small Bash script to wake several servers using Wake-
 ## Usage
 
 1. Edit the `HOSTS` and `MACS` arrays in `power-on-server.sh` so that each MAC corresponds to the matching host.
-2. Ensure the `wakeonlan` and `etherwake` utilities are installed on the system running the script.
+2. Ensure the `wakeonlan` and `etherwake` utilities are installed on the system running the script.    
+    The script checks for these commands and aborts if they are missing. Array lengths are also verified.
 3. Make the script executable and run it manually:
 
 ```bash
