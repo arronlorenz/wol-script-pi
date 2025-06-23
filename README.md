@@ -4,12 +4,8 @@ This repository contains a Bash script that keeps Proxmox nodes awake by sending
 
 ## Usage
 
-1. Create `/etc/power-on-cluster.conf` with one `ip|mac` pair per line. Example:
-
-```
-192.168.10.53|48:21:0b:5a:45:49
-192.168.10.51|88:ae:dd:04:b6:64
-```
+1. Edit the `HOSTS` and `MACS` arrays at the top of `power-on-server.sh` with
+   the IP and MAC address pairs for your nodes.
 
 2. Ensure the following utilities are installed: `wakeonlan`, `etherwake`, `flock`, and `logger` (usually part of util-linux). The script checks for these commands.
 3. Make the script executable and run it manually:
