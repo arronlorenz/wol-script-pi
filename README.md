@@ -1,12 +1,17 @@
 # wol-script-pi
 
-This repository contains a small Bash script to wake several servers using Wake-on-LAN. The script checks whether each host is reachable and sends magic packets when needed.
+This repository contains a Bash script that keeps Proxmox nodes awake by sending Wake-on-LAN packets when they become unreachable. The script can run from cron or a systemd timer and logs to the system journal.
 
 ## Usage
 
-1. Edit the `HOSTS` and `MACS` arrays in `power-on-server.sh` so that each MAC corresponds to the matching host.
-2. Ensure the `wakeonlan` and `etherwake` utilities are installed on the system running the script.    
-    The script checks for these commands and aborts if they are missing. Array lengths are also verified.
+1. Create `/etc/power-on-cluster.conf` with one `ip|mac` pair per line. Example:
+
+```
+192.168.10.53|48:21:0b:5a:45:49
+192.168.10.51|88:ae:dd:04:b6:64
+```
+
+2. Ensure the following utilities are installed: `wakeonlan`, `etherwake`, `flock`, and `logger` (usually part of util-linux). The script checks for these commands.
 3. Make the script executable and run it manually:
 
 ```bash
@@ -14,10 +19,10 @@ chmod +x power-on-server.sh
 ./power-on-server.sh
 ```
 
-For unattended operation, schedule the script via cron:
+For unattended operation schedule it via cron or a systemd timer. A simple cron entry:
 
 ```
-@hourly /usr/bin/bash /home/pi/power-on-server.sh >>/home/pi/power-on-server.log 2>&1
+@hourly /usr/bin/bash /path/to/power-on-server.sh
 ```
 
 ## Dependencies
@@ -25,5 +30,6 @@ For unattended operation, schedule the script via cron:
 - bash
 - wakeonlan
 - etherwake
+- util-linux (for `flock` and `logger`)
 
 The script was adapted from content published by technotim.
